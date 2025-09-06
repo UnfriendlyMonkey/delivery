@@ -20,3 +20,6 @@ tmp/*
 
 .tmp/*
 !.tmp/.keep
+
+# build dir
+/build
