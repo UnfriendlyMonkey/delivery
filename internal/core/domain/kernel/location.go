@@ -31,19 +31,19 @@ func NewLocation(x, y uint8) (Location, error) {
 }
 
 func MinLocation() Location {
-	loc, _ := NewLocation(1, 1)
+	loc, _ := NewLocation(MinX, MinY)
 	return loc
 }
 
 func MaxLocation() Location {
-	loc, _ := NewLocation(10, 10)
+	loc, _ := NewLocation(MaxX, MaxY)
 	return loc
 }
 
 func RandomLocation() (Location, error) {
 	randomizer := rand.New(rand.NewSource(time.Now().Unix()))
-	randx := randomizer.Intn(10) + 1
-	randy := randomizer.Intn(10) + 1
+	randx := randomizer.Intn(MaxX - MinX + 1) + MinX
+	randy := randomizer.Intn(MaxY - MinY + 1) + MinY
 	loc, err := NewLocation(uint8(randx), uint8(randy))
 	if err != nil {
 		return Location{}, err
