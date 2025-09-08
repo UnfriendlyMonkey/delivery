@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewLocCorrectParams(t *testing.T) {
+func Test_NewLocCorrectParams(t *testing.T) {
 	// Arrange
 
 	// Act
@@ -55,17 +55,17 @@ func Test_NewLocWithOutOfRangeReturnError(t *testing.T) {
 	}
 }
 
-func TestRandomLocation(t *testing.T) {
+func Test_RandomLocation(t *testing.T) {
 	for i := range 11 {
 		t.Run(fmt.Sprintf("test RandomLocation %d", i), func(t *testing.T) {
 			got, err := kernel.RandomLocation()
 			assert.NotEmpty(t, got, "random location shouldn't be empty")
-			assert.NoError(t, err, "shouln't be errors creating random location")
+			assert.NoError(t, err, "shouldn't be errors creating random location")
 		})
 	}
 }
 
-func TestMinLocation(t *testing.T) {
+func Test_MinLocation(t *testing.T) {
 	// Arrange
 	// Act
 	loc := kernel.MinLocation()
@@ -76,7 +76,7 @@ func TestMinLocation(t *testing.T) {
 	assert.Equal(t, loc.Y(), uint8(kernel.MinY))
 }
 
-func TestMaxLocation(t *testing.T) {
+func Test_MaxLocation(t *testing.T) {
 	// Arrange
 	// Act
 	loc := kernel.MaxLocation()
@@ -87,7 +87,7 @@ func TestMaxLocation(t *testing.T) {
 	assert.Equal(t, loc.Y(), uint8(kernel.MaxY))
 }
 
-func TextLocationsEqual(t *testing.T) {
+func Test_LocationsEqual(t *testing.T) {
 	// Arrange
 	// Act
 	loc1 := kernel.MaxLocation()
@@ -97,7 +97,7 @@ func TextLocationsEqual(t *testing.T) {
 	assert.True(t, loc1.Equal(loc2), "two max locations should be equal")
 }
 
-func TextLocationsNotEqual(t *testing.T) {
+func Test_LocationsNotEqual(t *testing.T) {
 	// Arrange
 	// Act
 	loc1 := kernel.MaxLocation()
