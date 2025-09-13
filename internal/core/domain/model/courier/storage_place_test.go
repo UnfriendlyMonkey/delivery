@@ -1,6 +1,7 @@
 package courier_test
 
 import (
+	"delivery/internal/core/domain/kernel"
 	"delivery/internal/core/domain/model/courier"
 	"delivery/internal/pkg/errs"
 	"fmt"
@@ -29,7 +30,7 @@ func Test_NewStoragePlaceCorrectParams(t *testing.T) {
 	assert.NotEmpty(t, sp, "new StoragePlace should not be empty")
 	assert.NoError(t, err, "should be no error creating new StoragePlace")
 	assert.Equal(t, NameBag, sp.Name(), "name shell be 'bag'")
-	assert.Equal(t, StandardBag, sp.TotalVolume(), "total volume shall be 10")
+	assert.Equal(t, StandardBag, int(sp.TotalVolume()), "total volume shall be 10")
 	assert.Nil(t, sp.OrderID(), "order id shall be empty")
 }
 
@@ -37,17 +38,17 @@ func Test_NewStoragePlaceWithErrors(t *testing.T) {
 	// Arrange
 	tests := map[string]struct {
 		name string
-		volume int
+		volume kernel.Volume
 		expected error
 	}{
 		"wrong_name": {
 			name: EmptyName,
-			volume: VolumeOK,
+			volume: kernel.Volume(VolumeOK),
 			expected: errs.NewValueIsRequiredError("name"),
 		},
 		"wrong_volume": {
 			name: NameBag,
-			volume: VolumeWrong,
+			volume: kernel.Volume(VolumeWrong),
 			expected: errs.NewValueIsInvalidError("totalVolume"),
 		},
 	}
@@ -101,7 +102,7 @@ func Test_StoragePlaceCanStoreWrongVolume(t *testing.T) {
 	assert.Error(t, err, "Should return error here")
 }
 
-func Test_EqualNot(t *testing.T) {
+func Test_StoragePlaceEqualNot(t *testing.T) {
 	// Arrange
 
 	// Act
