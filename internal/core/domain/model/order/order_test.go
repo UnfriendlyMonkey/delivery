@@ -15,14 +15,6 @@ const (
 	VolumeOK = 5
 )
 
-func CreateOrderOK() *order.Order {
-	orderID := uuid.New()
-	location, _ := kernel.RandomLocation()
-	volume, _ := kernel.NewVolume(VolumeOK)
-	o, _ := order.NewOrder(orderID, location, *volume)
-	return o
-}
-
 func Test_NewOrderOkWithValidParams(t *testing.T) {
 	// Arrange
 	orderID := uuid.New()
@@ -81,7 +73,7 @@ func Test_NewOrderErrorsWithWrongParams(t *testing.T) {
 }
 
 func Test_OrderCanAssignCourierOK(t *testing.T) {
-	o := CreateOrderOK()
+	o := order.CreateOrderOK()
 	courierID := uuid.New()
 	err := o.Assign(&courierID)
 	assert.NoError(t, err, "should be no error assigning client to order")
@@ -91,7 +83,7 @@ func Test_OrderCanAssignCourierOK(t *testing.T) {
 
 func Test_OrderAssignErrorWrongID(t *testing.T) {
 	targetErr := errs.NewValueIsInvalidError("courierID")
-	o := CreateOrderOK()
+	o := order.CreateOrderOK()
 	courierID := uuid.Nil
 	err := o.Assign(&courierID)
 	assert.Error(t, err, "should be arror assigning empty courier ID to order")
@@ -99,7 +91,7 @@ func Test_OrderAssignErrorWrongID(t *testing.T) {
 }
 
 func Test_OrderCompleteOK(t *testing.T) {
-	o := CreateOrderOK()
+	o := order.CreateOrderOK()
 	courierID := uuid.New()
 	_ = o.Assign(&courierID)
 	err := o.Complete()
@@ -108,7 +100,7 @@ func Test_OrderCompleteOK(t *testing.T) {
 }
 
 func Test_OrderCompleteErrorNotAssigned(t *testing.T) {
-	o := CreateOrderOK()
+	o := order.CreateOrderOK()
 	err := o.Complete()
 	assert.Error(t, err, "should be error completing not assigned order")
 	assert.Equal(t, order.ErrOrderStatusIsWrongForAction, err, fmt.Sprintf(

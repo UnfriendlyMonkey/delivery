@@ -11,6 +11,10 @@ import (
 
 var ErrOrderStatusIsWrongForAction = errors.New("wrong order status for the action")
 
+const (
+	VolumeOK = 5
+)
+
 type Order struct {
 	id        uuid.UUID
 	courierID *uuid.UUID
@@ -35,6 +39,15 @@ func NewOrder(orderID uuid.UUID, location kernel.Location, volume kernel.Volume)
 		volume:    volume,
 		status:    StatusCreated,
 	}, nil
+}
+
+// CreateOrderOK may be used for testing as normal order object w/o errors
+func CreateOrderOK() *Order {
+	orderID := uuid.New()
+	location, _ := kernel.RandomLocation()
+	volume, _ := kernel.NewVolume(VolumeOK)
+	o, _ := NewOrder(orderID, location, *volume)
+	return o
 }
 
 func (o *Order) Equal(target *Order) bool {

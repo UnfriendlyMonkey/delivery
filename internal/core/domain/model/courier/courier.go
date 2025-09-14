@@ -18,6 +18,8 @@ var (
 const (
 	MinSpeed = 1
 	MaxSpeed = 5
+	SpeedOK = 2
+	NameOK = "SomeName"
 )
 
 type Courier struct {
@@ -47,6 +49,13 @@ func NewCourier(name string, speed int, location kernel.Location) (*Courier, err
 			NewBag(),
 		},
 	}, nil
+}
+
+// CreateCourierOK may be used for test as normal courier object w/o errors
+func CreateCourierOK() *Courier {
+	location, _ := kernel.RandomLocation()
+	c, _ := NewCourier(NameOK, SpeedOK, location)
+	return c
 }
 
 func (c *Courier) Equal(target *Courier) bool {

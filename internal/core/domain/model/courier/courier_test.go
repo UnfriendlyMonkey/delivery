@@ -9,7 +9,6 @@ import (
 	"math"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,21 +19,6 @@ const (
 	SpeedLow = 0
 	SpeedHigh = 9
 )
-
-func createCourierOK() *courier.Courier {
-	location, _ := kernel.RandomLocation()
-	c, _ := courier.NewCourier(NameOK, SpeedOK, location)
-	return c
-}
-
-func CreateOrderOK() *order.Order {
-	// TODO: move to order package
-	orderID := uuid.New()
-	location, _ := kernel.RandomLocation()
-	volume, _ := kernel.NewVolume(VolumeOK)
-	o, _ := order.NewOrder(orderID, location, *volume)
-	return o
-}
 
 func Test_NewCourierOkWithValidParams(t *testing.T) {
 	// Arrange
@@ -97,31 +81,31 @@ func Test_NewCourierErrorsWithWrongParams(t *testing.T) {
 }
 
 func Test_CourierEqualOK(t *testing.T) {
-	c := createCourierOK()
+	c := courier.CreateCourierOK()
 	assert.True(t, c.Equal(c), "courier should be equal to themselfs")
 }
 
 func Test_CourierEqualNot(t *testing.T) {
-	c := createCourierOK()
-	c2 := createCourierOK()
+	c := courier.CreateCourierOK()
+	c2 := courier.CreateCourierOK()
 	assert.False(t, c.Equal(c2), "courier should not be equal other courier")
 }
 
 func Test_CourierCanAddStoragePlaceOK(t *testing.T) {
-	c := createCourierOK()
+	c := courier.CreateCourierOK()
 	err := c.AddStoragePlace("pocket", courier.BagVolume)
 	assert.NoError(t, err, "should be no error adding normal storage place")
 	assert.Equal(t, 2, len(c.StoragePlaces()), "should be 2 storage places after adding")
 }
 
 func Test_CourierCanNotAddStoragePlaceWrongSize(t *testing.T) {
-	c := createCourierOK()
+	c := courier.CreateCourierOK()
 	err := c.AddStoragePlace("empty_pocket", 0)
 	assert.Error(t, err, "should be error adding too small storage place")
 }
 
 func Test_CourierCanNotAddStoragePlaceWrongName(t *testing.T) {
-	c := createCourierOK()
+	c := courier.CreateCourierOK()
 	err := c.AddStoragePlace("", courier.BagVolume)
 	assert.Error(t, err, "should be error adding storage place with no name")
 }
@@ -138,16 +122,25 @@ func Test_CourierCalculateTimeOK(t *testing.T) {
 	assert.Equal(t, expectedTime, time, "time should match expected")
 }
 
+func Test_CourierCalculateTimeWrongLocation(t *testing.T) {
+	wrongLoc := kernel.Location{}
+	c := courier.CreateCourierOK()
+	_, err := c.CalculateTimeToLocation(wrongLoc)
+	expected := errs.NewValueIsInvalidError("location")
+	assert.Error(t, err, "should be error calculating time to incorrect location")
+	assert.Equal(t, expected, err, fmt.Sprintf("expected %v, got %v", expected, err))
+}
+
 func Test_CourierTakeOrderOK(t *testing.T) {
-	c := createCourierOK()
-	o := CreateOrderOK()
+	c := courier.CreateCourierOK()
+	o := order.CreateOrderOK()
 	err := c.TakeOrder(o)
 	assert.NoError(t, err, "courier should take normal order")
 }
 
 func Test_CourierCompleteOrderOK(t *testing.T) {
-	c := createCourierOK()
-	o := CreateOrderOK()
+	c := courier.CreateCourierOK()
+	o := order.CreateOrderOK()
 	err := c.TakeOrder(o)
 	assert.NoError(t, err, "courier should take normal order")
 	err = c.CompleteOrder(o)
