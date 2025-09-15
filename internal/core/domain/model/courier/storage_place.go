@@ -2,10 +2,16 @@
 package courier
 
 import (
+	"delivery/internal/core/domain/kernel"
 	"delivery/internal/pkg/errs"
 	"errors"
 
 	"github.com/google/uuid"
+)
+
+const (
+	BagVolume = 10
+	BagName = "bag"
 )
 
 var ErrStoragePlaceNotEmptyOrLargeEnough = errors.New("storage place is occupied or less than necessary")
@@ -13,15 +19,15 @@ var ErrStoragePlaceNotEmptyOrLargeEnough = errors.New("storage place is occupied
 type StoragePlace struct {
 	id          uuid.UUID
 	name        string
-	totalVolume int
+	totalVolume kernel.Volume
 	orderID     *uuid.UUID
 }
 
-func NewStoragePlace(name string, totalVolume int) (*StoragePlace, error) {
+func NewStoragePlace(name string, totalVolume kernel.Volume) (*StoragePlace, error) {
 	if name == "" {
 		return nil, errs.NewValueIsRequiredError("name")
 	}
-	if totalVolume <= 0 {
+	if !totalVolume.IsValid() {
 		return nil, errs.NewValueIsInvalidError("totalVolume")
 	}
 
@@ -30,6 +36,11 @@ func NewStoragePlace(name string, totalVolume int) (*StoragePlace, error) {
 		name:        name,
 		totalVolume: totalVolume,
 	}, nil
+}
+
+func NewBag() *StoragePlace {
+	bag, _ := NewStoragePlace(BagName, BagVolume)
+	return bag
 }
 
 func (s *StoragePlace) isOccupied() bool {
@@ -44,7 +55,7 @@ func (s *StoragePlace) Name() string {
 	return s.name
 }
 
-func (s *StoragePlace) TotalVolume() int {
+func (s *StoragePlace) TotalVolume() kernel.Volume {
 	return s.totalVolume
 }
 
@@ -52,17 +63,17 @@ func (s *StoragePlace) OrderID() *uuid.UUID {
 	return s.orderID
 }
 
-func (s *StoragePlace) CanStore(volume int) (bool, error) {
-	if volume <= 0 {
+func (s *StoragePlace) CanStore(volume kernel.Volume) (bool, error) {
+	if !volume.IsValid() {
 		return false, errs.NewValueIsInvalidError("volume")
 	}
-	if s.isOccupied() || s.totalVolume < volume {
+	if s.isOccupied() || !volume.FitsTo(&s.totalVolume) {
 		return false, nil
 	}
 	return true, nil
 }
 
-func (s *StoragePlace) Store(orderID uuid.UUID, volume int) error {
+func (s *StoragePlace) Store(orderID uuid.UUID, volume kernel.Volume) error {
 	canStore, err := s.CanStore(volume)
 	if err != nil {
 		return err
