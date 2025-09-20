@@ -29,7 +29,7 @@ func NewRepository(tracker Tracker) (*Repository, error) {
 }
 
 func (r *Repository) Add(ctx context.Context, aggregate *order.Order) error {
-	r.tracker.Track(aggregate)
+	// r.tracker.Track(aggregate)
 
 	dto := DomainToDTO(aggregate)
 
@@ -57,7 +57,7 @@ func (r *Repository) Add(ctx context.Context, aggregate *order.Order) error {
 }
 
 func (r *Repository) Update(ctx context.Context, aggregate *order.Order) error {
-	r.tracker.Track(aggregate)
+	// r.tracker.Track(aggregate)
 
 	dto := DomainToDTO(aggregate)
 
@@ -87,7 +87,7 @@ func (r *Repository) Update(ctx context.Context, aggregate *order.Order) error {
 func (r *Repository) Get(ctx context.Context, ID uuid.UUID) (*order.Order, error) {
 	dto := OrderDTO{}
 
-	tx := r.getTxOrDb()
+	tx := r.getTxOrDB()
 	result := tx.WithContext(ctx).
 		Preload(clause.Associations).
 		Find(&dto, ID)
@@ -102,7 +102,7 @@ func (r *Repository) Get(ctx context.Context, ID uuid.UUID) (*order.Order, error
 func (r *Repository) GetFirstInCreatedStatus(ctx context.Context) (*order.Order, error) {
 	dto := OrderDTO{}
 
-	tx := r.getTxOrDb()
+	tx := r.getTxOrDB()
 	result := tx.WithContext(ctx).
 		Preload(clause.Associations).
 		Where("status = ?", order.StatusCreated).
@@ -121,7 +121,7 @@ func (r *Repository) GetFirstInCreatedStatus(ctx context.Context) (*order.Order,
 func (r *Repository) GetAllInAssignedStatus(ctx context.Context) ([]*order.Order, error) {
 	var dtos []OrderDTO
 
-	tx := r.getTxOrDb()
+	tx := r.getTxOrDB()
 	result := tx.WithContext(ctx).
 		Preload(clause.Associations).
 		Where("status = ?", order.StatusAssigned).
@@ -141,7 +141,7 @@ func (r *Repository) GetAllInAssignedStatus(ctx context.Context) ([]*order.Order
 	return aggregates, nil
 }
 
-func (r *Repository) getTxOrDb() *gorm.DB {
+func (r *Repository) getTxOrDB() *gorm.DB {
 	if tx := r.tracker.Tx(); tx != nil {
 		return tx
 	}

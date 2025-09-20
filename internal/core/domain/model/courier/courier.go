@@ -51,6 +51,17 @@ func NewCourier(name string, speed int, location kernel.Location) (*Courier, err
 	}, nil
 }
 
+// RestoreCourier creates from DB record, so no error is expected here
+func RestoreCourier(name string, speed int, location kernel.Location, id uuid.UUID, storagePlaces []*StoragePlace) *Courier {
+	return &Courier{
+		id: id,
+		name: name,
+		speed: speed,
+		location: location,
+		storagePlaces: storagePlaces,
+	}
+}
+
 // CreateCourierOK may be used for test as normal courier object w/o errors
 func CreateCourierOK() *Courier {
 	location, _ := kernel.RandomLocation()
