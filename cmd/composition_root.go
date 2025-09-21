@@ -1,3 +1,4 @@
+// Package cmd
 package cmd
 
 import (
@@ -11,14 +12,15 @@ import (
 
 type CompositionRoot struct {
 	configs Config
-	gormDb  *gorm.DB
+	gormDB  *gorm.DB
 
 	closers []Closer
 }
 
-func NewCompositionRoot(configs Config) *CompositionRoot {
+func NewCompositionRoot(configs Config, gormDB *gorm.DB) *CompositionRoot {
 	return &CompositionRoot{
 		configs: configs,
+		gormDB: gormDB,
 	}
 }
 
@@ -28,7 +30,7 @@ func (cr *CompositionRoot) NewOrderDispatcherService() services.OrderDispatcherS
 }
 
 func (cr *CompositionRoot) NewUnitOfWork() ports.UnitOfWork {
-	unitOfWork, err := postgres.NewUnitOfWork(cr.gormDb)
+	unitOfWork, err := postgres.NewUnitOfWork(cr.gormDB)
 	if err != nil {
 		log.Fatalf("cannot create UnitOfWork: %v", err)
 	}
