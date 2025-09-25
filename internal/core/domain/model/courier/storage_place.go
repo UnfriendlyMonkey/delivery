@@ -38,6 +38,16 @@ func NewStoragePlace(name string, totalVolume kernel.Volume) (*StoragePlace, err
 	}, nil
 }
 
+// RestoreStoragePlace creates from DB record, so no error is expected here
+func RestoreStoragePlace(name string, totalVolume kernel.Volume, id uuid.UUID, orderID *uuid.UUID) *StoragePlace {
+	return &StoragePlace{
+		id: id,
+		name: name,
+		totalVolume: totalVolume,
+		orderID: orderID,
+	}
+}
+
 func NewBag() *StoragePlace {
 	bag, _ := NewStoragePlace(BagName, BagVolume)
 	return bag

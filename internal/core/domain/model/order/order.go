@@ -34,11 +34,24 @@ func NewOrder(orderID uuid.UUID, location kernel.Location, volume kernel.Volume)
 		return nil, errs.NewValueIsInvalidError("volume")
 	}
 	return &Order{
+		id:       orderID,
+		location: location,
+		volume:   volume,
+		status:   StatusCreated,
+	}, nil
+}
+
+// RestoreOrder for restoring from DB record, so no error expected
+func RestoreOrder(
+	orderID uuid.UUID, courierID *uuid.UUID, location kernel.Location, volume kernel.Volume, status Status,
+) *Order {
+	return &Order{
 		id:        orderID,
+		courierID: courierID,
 		location:  location,
 		volume:    volume,
-		status:    StatusCreated,
-	}, nil
+		status:    status,
+	}
 }
 
 // CreateOrderOK may be used for testing as normal order object w/o errors
