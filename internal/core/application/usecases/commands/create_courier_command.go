@@ -16,9 +16,6 @@ func NewCreateCourierCommand(name string, speed int) (CreateCourierCommand, erro
 	if name == "" {
 		return CreateCourierCommand{}, errs.NewValueIsInvalidError("name")
 	}
-	if speed < courier.MinSpeed || speed > courier.MaxSpeed {
-		return CreateCourierCommand{}, errs.NewValueIsInvalidError("speed")
-	}
 
 	return CreateCourierCommand{
 		name: name,
