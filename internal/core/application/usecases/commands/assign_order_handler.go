@@ -45,6 +45,9 @@ func (h *assignOrderHandler) Handle(ctx context.Context, command AssignOrderComm
 	}
 	defer uow.RollbackUnlessCommitted(ctx)
 
+	// Start transaction
+	uow.Begin(ctx)
+
 	order, err := uow.OrderRepository().GetFirstInCreatedStatus(ctx)
 	if err != nil {
 		return err

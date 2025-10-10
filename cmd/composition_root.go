@@ -7,8 +7,10 @@ import (
 	"delivery/internal/core/application/usecases/queries"
 	"delivery/internal/core/domain/services"
 	"delivery/internal/core/ports"
+	"delivery/internal/jobs"
 	"log"
 
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -105,4 +107,20 @@ func (cr *CompositionRoot) NewGetIncompleteOrdersHandler() queries.GetIncomplete
 		log.Fatalf("cannot create GetIncompleteOrdersHandler: %v", err)
 	}
 	return handler
+}
+
+func (cr *CompositionRoot) NewAssignOrderJob() cron.Job {
+	job, err := jobs.NewAssignOrdersJob(cr.NewAssignOrderHandler())
+	if err != nil {
+		log.Fatalf("cannot create AssignOrdersJob: %v", err)
+	}
+	return job
+}
+
+func (cr *CompositionRoot) NewMoveCouriersJob() cron.Job {
+	job, err := jobs.NewMoveCouriersJob(cr.NewMoveCouriersHandler())
+	if err != nil {
+		log.Fatalf("cannot create MoveCouriersJob: %v", err)
+	}
+	return job
 }

@@ -37,6 +37,9 @@ func (h *moveCouriersHandler) Handle(ctx context.Context, command MoveCouriersCo
 	}
 	defer uow.RollbackUnlessCommitted(ctx)
 
+	// Start transaction
+	uow.Begin(ctx)
+
 	orders, err := uow.OrderRepository().GetAllInAssignedStatus(ctx)
 	if err != nil {
 		return err
