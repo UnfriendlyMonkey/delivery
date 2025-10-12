@@ -7,6 +7,7 @@ import (
 	"delivery/internal/core/ports"
 	"delivery/internal/pkg/errs"
 	"errors"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -39,6 +40,9 @@ func (r *Repository) Add(ctx context.Context, aggregate *order.Order) error {
 		r.tracker.Begin(ctx)
 	}
 	tx := r.tracker.Tx()
+	if tx == nil {
+		return errs.NewValueIsRequiredError("transaction not initialized")
+	}
 
 	// Вносим изменения
 	err := tx.WithContext(ctx).Session(&gorm.Session{FullSaveAssociations: true}).Create(&dto).Error
@@ -67,6 +71,9 @@ func (r *Repository) Update(ctx context.Context, aggregate *order.Order) error {
 		r.tracker.Begin(ctx)
 	}
 	tx := r.tracker.Tx()
+	if tx == nil {
+		return errs.NewValueIsRequiredError("transaction not initialized")
+	}
 
 	// Вносим изменения
 	err := tx.WithContext(ctx).Session(&gorm.Session{FullSaveAssociations: true}).Save(&dto).Error
@@ -147,4 +154,3 @@ func (r *Repository) getTxOrDB() *gorm.DB {
 	}
 	return r.tracker.Db()
 }
-

@@ -74,7 +74,12 @@ func (u *UnitOfWork) OrderRepository() ports.OrderRepository {
 }
 
 func (u *UnitOfWork) Begin(ctx context.Context) {
-	u.tx = u.db.WithContext(ctx).Begin()
+	tx := u.db.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		log.Errorf("Failed to begin transaction: %v", tx.Error)
+		return
+	}
+	u.tx = tx
 	u.committed = false
 }
 
@@ -106,4 +111,3 @@ func (u *UnitOfWork) clearTx() {
 	u.trackedAggregates = nil
 	u.committed = false
 }
-

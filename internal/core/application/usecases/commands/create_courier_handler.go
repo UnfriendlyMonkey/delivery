@@ -8,7 +8,7 @@ import (
 	"delivery/internal/pkg/errs"
 )
 
-type CreateCourierHandler interface{
+type CreateCourierHandler interface {
 	Handle(context.Context, CreateCourierCommand) error
 }
 
@@ -37,6 +37,8 @@ func (h *createCourierHandler) Handle(ctx context.Context, command CreateCourier
 	}
 	defer uow.RollbackUnlessCommitted(ctx)
 
+	// Start transaction
+	uow.Begin(ctx)
 
 	location, err := kernel.RandomLocation()
 	if err != nil {

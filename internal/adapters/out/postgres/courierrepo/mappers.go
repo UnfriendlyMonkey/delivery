@@ -15,7 +15,7 @@ func DomainToDTO(aggregate *courier.Courier) CourierDTO {
 		X: int(aggregate.Location().X()),
 		Y: int(aggregate.Location().Y()),
 	}
-	storagePlaces := make([]*StoragePlaceDTO, len(aggregate.StoragePlaces()))
+	storagePlaces := make([]*StoragePlaceDTO, 0, len(aggregate.StoragePlaces()))
 	for _, sp := range aggregate.StoragePlaces() {
 		spToDTO := SPDomainToDTO(sp)
 		courierID := courierDTO.ID
@@ -38,7 +38,7 @@ func SPDomainToDTO(entity *courier.StoragePlace) StoragePlaceDTO {
 func DtoToDomain(dto CourierDTO) *courier.Courier {
 	var aggregate *courier.Courier
 	location, _ := kernel.NewLocation(uint8(dto.Location.X), uint8(dto.Location.Y))
-	storagePlaces := make([]*courier.StoragePlace, len(dto.StoragePlaces))
+	storagePlaces := make([]*courier.StoragePlace, 0, len(dto.StoragePlaces))
 	for _, sp := range dto.StoragePlaces {
 		spToDomain := courier.RestoreStoragePlace(sp.Name, kernel.Volume(sp.TotalVolume), sp.ID, sp.OrderID)
 		storagePlaces = append(storagePlaces, spToDomain)

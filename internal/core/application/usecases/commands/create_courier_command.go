@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"delivery/internal/core/domain/model/courier"
 	"delivery/internal/pkg/errs"
 )
 

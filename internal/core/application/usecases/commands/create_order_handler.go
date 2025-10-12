@@ -41,6 +41,9 @@ func (h *createOrderHandler) Handle(ctx context.Context, command CreateOrderComm
 	}
 	defer uow.RollbackUnlessCommitted(ctx)
 
+	// Start transaction
+	uow.Begin(ctx)
+
 	orderAggregate, err := uow.OrderRepository().Get(ctx, command.OrderID())
 	if err != nil {
 		return err

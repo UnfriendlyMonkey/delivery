@@ -37,6 +37,9 @@ func (r *Repository) Add(ctx context.Context, aggregate *courier.Courier) error 
 		r.tracker.Begin(ctx)
 	}
 	tx := r.tracker.Tx()
+	if tx == nil {
+		return errs.NewValueIsRequiredError("transaction not initialized")
+	}
 
 	session := &gorm.Session{FullSaveAssociations: true}
 	err := tx.WithContext(ctx).Session(session).Create(&dto).Error
@@ -63,6 +66,9 @@ func (r *Repository) Update(ctx context.Context, aggregate *courier.Courier) err
 		r.tracker.Begin(ctx)
 	}
 	tx := r.tracker.Tx()
+	if tx == nil {
+		return errs.NewValueIsRequiredError("transaction not initialized")
+	}
 
 	session := &gorm.Session{FullSaveAssociations: true}
 	err := tx.WithContext(ctx).

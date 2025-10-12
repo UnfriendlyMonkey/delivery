@@ -6,7 +6,7 @@ import (
 	"delivery/internal/pkg/errs"
 )
 
-type AddStoragePlaceHandler interface{
+type AddStoragePlaceHandler interface {
 	Handle(context.Context, AddStoragePlaceCommand) error
 }
 
@@ -36,6 +36,9 @@ func (h *addStoragePlaceHandler) Handle(ctx context.Context, command AddStorageP
 		return err
 	}
 	defer uow.RollbackUnlessCommitted(ctx)
+
+	// Start transaction
+	uow.Begin(ctx)
 
 	courierAggregate, err := uow.CourierRepository().Get(ctx, command.CourierID())
 	if err != nil {
