@@ -2,7 +2,6 @@ package commands
 
 import (
 	"context"
-	"delivery/internal/core/domain/kernel"
 	"delivery/internal/core/domain/model/order"
 	"delivery/internal/core/ports"
 	"delivery/internal/pkg/errs"
@@ -14,12 +13,14 @@ type CreateOrderHandler interface {
 
 type createOrderHandler struct {
 	uowFactory ports.UnitOfWorkFactory
+	geoClient  ports.GeoClient
 }
 
 var _ CreateOrderHandler = &createOrderHandler{}
 
 func NewCreateOrderHandler(
 	uowFactory ports.UnitOfWorkFactory,
+	geoClient ports.GeoClient,
 ) (CreateOrderHandler, error) {
 	if uowFactory == nil {
 		return nil, errs.NewValueIsInvalidError("uowFactory")
@@ -27,6 +28,7 @@ func NewCreateOrderHandler(
 
 	return &createOrderHandler{
 		uowFactory: uowFactory,
+		geoClient: geoClient,
 	}, nil
 }
 
@@ -52,7 +54,8 @@ func (h *createOrderHandler) Handle(ctx context.Context, command CreateOrderComm
 		return nil
 	}
 
-	location, err := kernel.RandomLocation()
+	// location, err := kernel.RandomLocation()
+	location, err := h.geoClient.GetGeoLocation(ctx, command.Street())
 	if err != nil {
 		return err
 	}
