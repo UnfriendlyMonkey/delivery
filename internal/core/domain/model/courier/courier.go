@@ -18,8 +18,8 @@ var (
 const (
 	MinSpeed = 1
 	MaxSpeed = 5
-	SpeedOK = 2
-	NameOK = "SomeName"
+	SpeedOK  = 2
+	NameOK   = "SomeName"
 )
 
 type Courier struct {
@@ -54,10 +54,10 @@ func NewCourier(name string, speed int, location kernel.Location) (*Courier, err
 // RestoreCourier creates from DB record, so no error is expected here
 func RestoreCourier(name string, speed int, location kernel.Location, id uuid.UUID, storagePlaces []*StoragePlace) *Courier {
 	return &Courier{
-		id: id,
-		name: name,
-		speed: speed,
-		location: location,
+		id:            id,
+		name:          name,
+		speed:         speed,
+		location:      location,
 		storagePlaces: storagePlaces,
 	}
 }
@@ -169,8 +169,10 @@ func (c *Courier) CalculateTimeToLocation(target kernel.Location) (float64, erro
 		return 0, errs.NewValueIsInvalidError("location")
 	}
 	dist, err := c.location.Distance(target)
-	if err != nil { return 0, err }
-	time := math.Ceil( float64(dist) / float64(c.speed))
+	if err != nil {
+		return 0, err
+	}
+	time := math.Ceil(float64(dist) / float64(c.speed))
 	return time, nil
 }
 
@@ -178,8 +180,8 @@ func (c *Courier) Move(target kernel.Location) error {
 	if !target.IsValid() {
 		return errs.NewValueIsInvalidError("location")
 	}
-	dx := float64(target.X() - c.location.X())
-	dy := float64(target.Y() - c.location.Y())
+	dx := float64(target.X()) - float64(c.location.X())
+	dy := float64(target.Y()) - float64(c.location.Y())
 	remainingRange := float64(c.speed)
 
 	if math.Abs(dx) > remainingRange {
@@ -191,8 +193,25 @@ func (c *Courier) Move(target kernel.Location) error {
 		dy = math.Copysign(remainingRange, dy)
 	}
 
-	newX := c.location.X() + uint8(dx)
-	newY := c.location.Y() + uint8(dy)
+	// Calculate new coordinates using int to handle negative values correctly
+	newXInt := int(c.location.X()) + int(math.Round(dx))
+	newYInt := int(c.location.Y()) + int(math.Round(dy))
+
+	// Clamp to valid bounds
+	if newXInt < int(kernel.MinX) {
+		newXInt = int(kernel.MinX)
+	} else if newXInt > int(kernel.MaxX) {
+		newXInt = int(kernel.MaxX)
+	}
+
+	if newYInt < int(kernel.MinY) {
+		newYInt = int(kernel.MinY)
+	} else if newYInt > int(kernel.MaxY) {
+		newYInt = int(kernel.MaxY)
+	}
+
+	newX := uint8(newXInt)
+	newY := uint8(newYInt)
 
 	newLocation, err := kernel.NewLocation(newX, newY)
 	if err != nil {
