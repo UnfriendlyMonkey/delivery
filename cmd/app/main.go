@@ -56,6 +56,7 @@ func main() {
 	defer compositionRoot.CloseAll()
 
 	startCronJobs(compositionRoot)
+	startBasketConfirmedConsumer(compositionRoot)
 	startWebServer(compositionRoot, config.HttpPort)
 }
 
@@ -251,13 +252,26 @@ func registerHealthCheck(e *echo.Echo) {
 }
 
 func startCronJobs(compositionRoot *cmd.CompositionRoot) {
+	log.Info("Starting cron jobs")
 	c := cron.New()
-	_, err := c.AddJob("@every 10s", compositionRoot.NewAssignOrderJob())
+	entry, err := c.AddJob("@every 10s", compositionRoot.NewAssignOrderJob())
 	if err != nil {
 		log.Fatalf("error adding cron job: %v", err)
 	}
-	_, err = c.AddJob("@every 1s", compositionRoot.NewMoveCouriersJob())
+	log.Info("AssignOrderJob entry: ", entry)
+	entry, err = c.AddJob("@every 1s", compositionRoot.NewMoveCouriersJob())
 	if err != nil {
 		log.Fatalf("error adding cron job: %v", err)
 	}
+	log.Printf("MoveCouriersJob entry: %v", entry)
+	c.Start()
+	log.Info("Cron scheduler started")
+}
+
+func startBasketConfirmedConsumer(compositionRoot *cmd.CompositionRoot) {
+	go func() {
+		if err := compositionRoot.NewBasketConfirmedConsumer().Consume(); err != nil {
+			log.Fatalf("Kafka consumer error: %v", err)
+		}
+	}()
 }

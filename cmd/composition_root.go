@@ -3,6 +3,7 @@ package cmd
 
 import (
 	grpcgeo "delivery/internal/adapters/out/grpc/geo"
+	kafkabasket "delivery/internal/adapters/in/kafka"
 	"delivery/internal/adapters/out/postgres"
 	"delivery/internal/core/application/usecases/commands"
 	"delivery/internal/core/application/usecases/queries"
@@ -139,4 +140,18 @@ func (cr *CompositionRoot) NewGeoClient() ports.GeoClient {
 		cr.geoClient = client
 	})
 	return cr.geoClient
+}
+
+func (cr *CompositionRoot) NewBasketConfirmedConsumer() kafkabasket.BasketConfirmedConsumer {
+	consumer, err := kafkabasket.NewBasketConfirmedConsumer(
+		[]string{cr.configs.KafkaHost},
+		cr.configs.KafkaConsumerGroup,
+		cr.configs.KafkaBasketConfirmedTopic,
+		cr.NewCreateOrderHandler(),
+	)
+	if err != nil {
+		log.Fatalf("cannot create BasketConfirmedConsumer: %v", err)
+	}
+	cr.RegisterCloser(consumer)
+	return consumer
 }
